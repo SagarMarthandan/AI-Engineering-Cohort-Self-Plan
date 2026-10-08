@@ -372,19 +372,21 @@ The original 45-day files remain unchanged. This is the current 60-study-day sch
 
 ## 8. Extra capstone: City Disruption Memory
 
-Keep D01–D60 and the customer-support capstone above. The additional AI + data engineering project is **[City Disruption Memory](City_Disruption_Memory_Capstone.md)**: collect live Chicago transit alerts, 311 infrastructure reports, and transit geography; build a versioned stop/corridor evidence history; compute spatial/time overlaps; and generate cited AI explanations.
+Keep D01–D60 and the customer-support capstone above. The additional project is **[City Disruption Memory](City_Disruption_Memory_Capstone.md)**: an AI-operated data engineering platform using live Chicago transit alerts, 311 infrastructure reports, and versioned geography. The primary objective is to configure, deploy, diagnose, and operate Spark/Docker/Terraform infrastructure with AI assistance and Prometheus/Grafana monitoring.
 
-You will construct your own collection history and derived dataset rather than download a finished analysis dataset or clone a tutorial. The contribution is cross-source disruption evidence with historical knowledge cutoffs and corrections. Existing transit projects already cover bus reliability; this plan makes no “world-first” claim.
+Construct your own collection history and derived dataset rather than clone a tutorial. Connect source evidence to Spark runs, infrastructure/configuration versions, alerts, AI diagnoses, approved actions, and verified recovery. City-text extraction and explanation are secondary features. The project makes no “world-first” claim.
 
 | Proposed extension | Focus | Hours |
 |---|---|---|
-| Week 13, D61–D65 | Source contracts, live collection, versioned geography, incremental history | 30 |
-| Week 14, D66–D70 | Spatial/time matching, constrained AI extraction, historical queries, evaluation | 30 |
-| Week 15, D71–D75 | Timeline/map, recovery, held-out results, clean deployment, release package | 30 |
+| Week 13, D61–D65 | Live collection, Docker/Spark deployment, Terraform ownership, Prometheus/Grafana telemetry | 30 |
+| Week 14, D66–D70 | Replay-safe history, Spark tuning experiments, AI diagnosis, configuration proposals, approval gates | 30 |
+| Week 15, D71–D75 | Verified recovery, held-out incident evaluation, clean startup, runbooks, operating case study | 30 |
 | **Extra capstone total** | **15 study days, five days/week, six hours/day** | **90** |
 
 The original course remains **60 study days / 360 hours**. Taking the extension makes the combined schedule **75 study days / 15 weeks / 450 hours**. It is not hidden inside the original six-hour days.
 
-See the capstone specification for all 15 daily tasks, official sources, data/model licensing, provenance rules, and completion criteria. Start live collectors on D62 and retain at least seven calendar days of observations. Jobs can run unattended on weekends; weekend study is not required. Historical “known at” claims begin with collection, not with a backfilled record's creation date.
+See the capstone specification for all 15 daily tasks, infrastructure ownership, source/licensing boundaries, operational evaluation, and completion gates. Start collectors on D62 and retain seven calendar days of observations; unattended weekend jobs do not require weekend study. Preserve historical knowledge cutoffs and label captured-data load replay and injected faults as experiments, not new city observations.
 
-The specification is a learning/build plan, not an implemented application. Source access, sufficient real evaluation material, and completion evidence determine the finish date. Use synthetic fixtures for edge-case tests only; do not manufacture a real city finding.
+Start locally: Terraform manages a Docker network and persistent volumes; Compose manages service containers, including a Spark master and two workers. Cloud provisioning is a separate provider/cost/permission decision, not an implied achievement. The AI assistant starts read-only; infrastructure changes and consequential recovery require exact-scope approval.
+
+The 90-hour extension is a target that assumes reuse from the core course, not a guaranteed finish date. The specification does not implement the platform. Complete the monitoring, diagnosis, incident, and data-correctness gates before claiming successful AIOps.

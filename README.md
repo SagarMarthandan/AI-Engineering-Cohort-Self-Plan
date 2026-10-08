@@ -19,9 +19,9 @@ The 45-day plans and previous curriculum documents remain unchanged as reference
 
 ### Extra AI + data engineering capstone
 
-The selected additional project is [City Disruption Memory](City_Disruption_Memory_Capstone.md): a live Chicago city-data pipeline combining transit alerts, infrastructure reports, and versioned geography with evidence-backed AI extraction and explanations. Build your own collection history and derived overlap dataset rather than clone an existing transit dashboard.
+The selected additional project is [City Disruption Memory](City_Disruption_Memory_Capstone.md): an AI-operated live Chicago data platform. Deploy Spark with Docker, provision local resources through Terraform, instrument infrastructure/jobs/data health with Prometheus and Grafana, and build an evidence-grounded AI assistant for configuration proposals, incident diagnosis, and approval-gated recovery. The city-data history supplies the real workload; text extraction is secondary.
 
-The proposed extension is **D61–D75: three additional weeks, five days/week, six hours/day, 90 hours**. The core 60-day course and its existing capstone remain intact. Taking both means 75 study days and 450 hours. The specification includes daily tasks, official sources, historical-cutoff rules, evaluation, licensing boundaries, and completion gates; no application or public release has been created yet.
+The proposed extension is **D61–D75: three additional weeks, five days/week, six hours/day, 90 hours**. The core 60-day course and its existing capstone remain intact. Taking both means 75 study days and 450 hours. The local-first specification includes all 15 daily tasks, Terraform/Compose ownership, Spark benchmarks, controlled incident evaluation, operational safety, source licensing, provenance, and completion gates. The 90 hours are a target, not a guarantee; no platform has been implemented or deployed by these documents.
 
 Printable build specification: [City_Disruption_Memory_Capstone.pdf](City_Disruption_Memory_Capstone.pdf).
 

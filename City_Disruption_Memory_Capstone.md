@@ -1,6 +1,6 @@
 # Extra Capstone: City Disruption Memory
 
-## An open-source, live city-data product with AI
+## An AI-operated data engineering platform using live city data
 
 **Question:** What reported infrastructure issues and transit disruptions overlapped around a stop or corridor, what changed during the week, and what evidence did the system have at the time?
 
@@ -10,6 +10,10 @@
 
 **Deliverable in this folder:** a build specification and learning schedule. The application, collectors, and dataset are not implemented by this document.
 
+**Primary learning objective:** configure, deploy, diagnose, and operate a data platform with AI assistance. Spark, Docker, Terraform, Prometheus, Grafana, and an evidence-grounded AIOps workflow are core requirements. City-data extraction and explanations are secondary features.
+
+**Engineering question:** when ingestion, a Spark job, or infrastructure fails, can an AI assistant identify the likely cause from operational evidence, propose a bounded fix, and verify recovery without losing or duplicating data?
+
 | Commitment | Schedule |
 |---|---|
 | Core AI course | Keep D01–D60, 12 weeks, 360 hours, and the existing support capstone |
@@ -18,13 +22,13 @@
 | Extra study hours | 90 |
 | Combined course + extension | 75 study days, 15 weeks, 450 hours |
 
-The extension is additional work, not a hidden task squeezed into the original 60 days. Its schedule assumes you can reuse the existing Airflow, FastAPI, evaluation, logging, and structured-output components. If source access, evidence collection, or a completion gate takes longer, extend the finish date instead of replacing real evidence with synthetic results.
+The extension is additional work, not a hidden task squeezed into the original 60 days. Its 90-hour schedule is a target, not a guarantee, and assumes you can reuse Airflow, FastAPI, evaluation, logging, and structured-output components. The infrastructure/AIOps work replaces the earlier emphasis on an elaborate city UI and a large text-extraction evaluation; it does not replace the core 60-day course. If platform setup, source access, or a completion gate takes longer, extend the finish date instead of omitting a required component or substituting synthetic city findings.
 
 ## 1. What makes this your project
 
 You will not download a finished city-analysis dataset or clone a tutorial pipeline. You will collect official operational records, retain source changes, construct the stop/corridor overlap dataset, label real examples, and publish your methodology.
 
-The original contribution is the **derived disruption history and its evidence model**. The city still owns its source records; collection does not transfer their copyright or remove their terms.
+The proposed contribution is the **connection between collected city-data history, pipeline execution, configuration changes, and evidence-backed incident recovery**. Retain the derived disruption history as the real workload. The city still owns its source records; collection does not transfer their copyright or remove their terms.
 
 ### Defensible differentiation
 
@@ -33,9 +37,9 @@ Existing projects already analyze Chicago bus reliability:
 - [CTA StopWatch](https://github.com/mansueto-institute/cta-stop-watch) combines collected bus locations, schedules, and geography to measure service reliability.
 - [Bus Pending](https://github.com/uchicago-mscapp-projects/bus_pending) collects bus positions and analyzes delay patterns with schedules and demographic information.
 
-Do not pitch another bus-delay dashboard as new. This capstone targets a different question: **cross-source, stop-level disruption evidence with corrections and historical knowledge cutoffs**. Both temporal history and spatial joins have established precedents; the proposed contribution is their application to this particular evidence product and your collected data. A limited search does not establish global uniqueness.
+Do not pitch another bus-delay dashboard as new. This capstone combines cross-source disruption evidence with an operational incident trail: which source versions a job processed, which infrastructure/configuration version ran it, which alerts appeared, what action was approved, and whether recovery preserved data correctness. Temporal modelling and AIOps have established precedents; this combination and your measured experiments define the contribution, not a claim of global uniqueness.
 
-Your portfolio claim after completing the project can be: “I built an open-source pipeline that preserves Chicago transit-alert and infrastructure-report changes, computes reproducible local overlaps, and produces source-backed AI explanations that respect historical knowledge cutoffs.” Do not claim measured performance or originality beyond what your comparison and results establish.
+Your portfolio claim after completing the project can be: “I built a Docker/Terraform-managed Spark data platform for live Chicago records, instrumented it with Prometheus and Grafana, and evaluated an AI incident assistant against controlled failures with approval-gated recovery.” Claim cloud deployment, successful recovery, and performance improvements only when your saved runs establish them.
 
 ## 2. Source contracts and real-data boundaries
 
@@ -67,14 +71,12 @@ If the collection window contains no alert corrections or genuine cross-source o
 
 ## 3. Product behavior
 
-The UI needs four views:
+Provide two small surfaces rather than a large city dashboard:
 
-1. **Area/stop timeline:** source events and relevant nearby reports, with source timestamps and freshness.
-2. **Changes:** new, changed, and no-longer-observed records, showing before/after source versions.
-3. **Evidence drawer:** source ID/URL, snapshot hash, captured time, source-effective time, extraction span, matching rule, and geography version.
-4. **Explanation:** a short AI account of the selected evidence, with citations, ambiguity, and gaps.
+1. **City evidence view:** stop/corridor filters, current versus historical records, source changes, provenance, and freshness. A table and a short timeline are sufficient.
+2. **Operations view:** Grafana dashboards plus an incident page showing the affected DAG/job, logs, metrics, source/configuration versions, diagnosis, proposed patch/action, approval, and recovery evidence.
 
-Provide deterministic filters for area/stop, date range, and knowledge cutoff. Natural-language chat is not required. A “What changed?” button is enough if it serves the question.
+Keep city queries deterministic. Natural-language city chat and a polished map are not completion requirements. An optional cited city explanation must use selected evidence and must not issue safety guarantees.
 
 ### Separate the two timelines
 
@@ -85,123 +87,159 @@ For a historical view, use only raw versions, geography, and derived facts avail
 
 The 311 `created_date`/`closed_date` interval can indicate the lifetime of the **administrative report**. It must not be labelled the physical hazard's duration. `last_modified_date` helps ingestion; it does not reconstruct every prior status transition.
 
-## 4. Data engineering architecture
+## 4. Data platform and infrastructure
 
-Use Python collectors, Airflow, dbt, PostgreSQL + PostGIS, FastAPI, Streamlit, and Docker Compose. Use immutable compressed JSON/XML snapshots and the original GTFS archive on a local persistent volume; generate Parquet exports from normalized records when useful. Use an open-weight local model through Ollama for extraction/explanation so the demonstrated stack has no mandatory paid model dependency. Record the chosen model's license and hardware needs.
+| Component | Required role | AI assistance to demonstrate |
+|---|---|---|
+| Python collectors + Airflow | Acquire permitted live inputs; schedule Spark jobs, checks, and bounded replay | Diagnose failed tasks using run state, source coverage, and logs |
+| Apache Spark | Normalize raw records into Parquet, deduplicate record versions, and reprocess captured history | Propose and benchmark executor memory, partition counts, and skew mitigation |
+| Docker + Compose | Run a Spark master and two worker containers plus the supporting services on one machine | Prepare reviewed image/resource/network configuration patches and diagnose startup failures |
+| Terraform | Provision a named local Docker network and persistent volumes through the Docker provider | Draft infrastructure patches, validate them, and explain the saved plan before approval |
+| PostgreSQL + PostGIS + dbt | Store source history, geography, deterministic overlap marts, and data checks | Explain a failed contract or query from its actual evidence |
+| Prometheus + Grafana | Collect platform/job metrics, display dashboards, and raise actionable alerts | Correlate alert timelines with failed runs and configuration changes |
+| FastAPI + a small UI | Show evidence and expose the incident investigation workflow | Present cited diagnosis, uncertainty, proposed actions, and verification results |
+| Ollama / an open-weight model | Perform read-only operational diagnosis and prepare bounded proposals | Compare with deterministic runbook diagnosis; record model/license/resource needs |
 
-Do not add Kafka, Spark, Kubernetes, a graph database, a vector store, or several agent frameworks just to increase the stack. The project requires scheduled collection, relational history, spatial matching, and evidence retrieval. PostGIS and SQL are sufficient for the bounded workload.
+**Deployment boundary:** start on a single local host. Two Docker workers let you exercise Spark scheduling and failure behavior; they do not demonstrate multi-host availability or production scale. Select pinned versions and resource budgets on D61 after inspecting available hardware. Run the local model on demand if simultaneous model/Spark workloads exceed that budget; record the effect on diagnosis latency.
 
-**Flow:** collectors → immutable raw evidence → validated source versions → versioned geography and extracted facts → SQL/PostGIS overlaps and change marts → API/UI → cited AI explanation. Failed data goes to quarantine with a reason; failed models leave the deterministic timeline usable.
+**Terraform ownership:** Terraform owns the named network and volumes; Compose references them as external resources and owns service containers. Do not let both tools manage the same object. Keep state and credentials out of version control; use stable resource names and persist the reviewed plan/configuration hash in the incident trail. Learn resource graphs, state, drift, lifecycle, validation, and plan review through actual local resources, not a fake cloud deployment.
+
+**Cloud boundary:** a later cloud deployment requires a provider, account permissions, region, cost ceiling, storage/IAM design, and approval. It is outside this local 90-hour target. Do not claim AWS/Azure/GCP provisioning from a Docker-provider exercise. Require approval before infrastructure apply/destroy or permission changes, including local changes that risk persistent data.
+
+**Storage and computation:** preserve compressed JSON/XML snapshots and original GTFS archives on persistent volumes. Spark writes normalized, versioned Parquet outputs. Publish validated records to PostgreSQL through idempotent staging/merge; dbt/PostGIS computes spatial/time overlaps. PostGIS remains authoritative for geographic distance; Spark does not need a new spatial framework.
+
+**Flow:** live collectors → immutable evidence → Spark normalization/replay → validated history → SQL/PostGIS marts → city evidence view. In parallel, metrics/logs/run records → Prometheus/Grafana alert → AI diagnosis → reviewed patch/action → approval → bounded execution → recovery checks → incident history.
+
+The bounded city dataset does not require Spark for throughput. Spark is an explicit operations-learning objective here. Benchmark captured-data replay with documented multiplicity and separate namespaces; never present duplicated replay records as new observations or let them enter the city findings. Do not add Kafka, Kubernetes, a vector store, or several agent frameworks without a demonstrated need.
 
 | Stored entity | Required fields / behavior |
 |---|---|
-| `collection_runs` | Source, query scope, start/end, outcome, pages, count, checkpoint, completeness, failure reason |
-| `raw_snapshots` | Snapshot ID, source URL/query without secrets, capture UTC, response metadata, SHA-256, storage path, collection-run ID |
-| `source_versions` | Source + record ID, canonical payload hash, snapshot reference, source timestamps, observed interval; append a changed version rather than overwrite it |
-| `geography_versions` | GTFS feed hash, captured/published metadata, stop/route geometry and membership; valid service dates where available |
-| `extracted_facts` | Source-version ID, explicit extracted fields, evidence spans, parser/model/prompt version, extraction UTC, validation/review status |
-| `disruption_overlaps` | Both source-version IDs, stop/corridor ID, geography version, spatial rule, temporal rule, distance, match certainty, derivation UTC |
-| `explanations` | Request filters/cutoff, exact input evidence IDs, output citations, model/prompt version, created UTC, validation outcome, runtime |
+| `collection_runs` | Source, scope, start/end, outcome, pages, count, checkpoint, completeness, failure reason |
+| `raw_snapshots` | Snapshot ID, sanitized source query, capture UTC, response metadata, SHA-256, path, collection-run ID |
+| `source_versions` | Source/record ID, canonical hash, snapshot reference, source timestamps, observed interval; append corrections |
+| `geography_versions` | GTFS hash, capture metadata, stop/route geometry and membership, available service dates |
+| `pipeline_runs` | Airflow/Spark run IDs, input manifests, code/image/config hashes, Terraform plan/apply reference, outputs, start/end, outcome |
+| `incidents` | Alert onset, affected runs, metric/log references, known configuration, injected-fault label where applicable, diagnosis and uncertainty |
+| `remediation_actions` | Proposed patch/action, evidence, model/prompt version, approver/time, allowed scope, execution result, rollback and verification |
+| `disruption_overlaps` | Separate source-version IDs, stop/corridor, geography version, matching rules, distance, certainty, derivation time |
+| `extracted_facts` / `explanations` | Optional city-AI outputs with input evidence IDs, supported spans/citations, model/prompt version, validation and availability time |
 
 ### Incremental collection and replay
 
-For 311, page by a stable order using source modification time plus record ID; use an overlapping lookback to catch equal timestamps and delayed updates. Persist a completed checkpoint only after all pages and raw evidence are durable. Deduplicate by source/record/version. Inspect the actual API contract before choosing pagination syntax.
+For 311, page by a stable order using modification time plus record ID, with an overlapping lookback for equal timestamps and delayed updates. Advance checkpoints only after raw evidence is durable and the corresponding processing outcome is recorded. Deduplicate by source/record/version. Inspect the actual API contract before choosing pagination syntax.
 
-For alerts, capture the complete feed and retain record-level versions. A record absent from a partial or failed poll is **unknown**, not resolved. A successful complete feed can establish “no longer observed”; it still cannot prove physical resolution. Run bounded reconciliations so missed updates and source deletions become explicit states.
+For alerts, retain complete-feed captures and record-level versions. Absence from a partial or failed poll is unknown. Absence from a successful complete feed means “no longer observed,” not physical resolution. Use bounded reconciliation to expose missed updates and deletions.
 
-An identical payload should not produce another business version, but each poll still contributes collection/freshness evidence. Replaying stored snapshots must recreate the same normalized facts and marts when code/config/model outputs are fixed. Persist AI outputs; byte-identical reruns of a nondeterministic model are not a reproducibility guarantee.
+Publish Spark outputs atomically through a completed manifest and idempotent database staging/merge. Retry a failed run against pinned inputs and configuration; verify both record-level correctness and checkpoint state. Duplicate polls retain freshness evidence without adding business versions. Persist any AI output used in authoritative history.
 
 ### Spatial and temporal matching
 
-Use provider stop/route IDs when present, plus GTFS membership from the correct version. Parse named intersections/segments only when the alert supports them. Route-wide alerts belong to a route-wide layer; do not pretend they identify one street corner. Quarantine ambiguous locations rather than choosing a coordinate through LLM guesswork.
+Use provider IDs and the GTFS version available at the knowledge cutoff. Keep route-wide alerts distinct from precise locations; quarantine unsupported/ambiguous locations. Use `ST_DWithin` on geography values in meters, initially 300 m, and compare 150/300/500 m sensitivity. Proximity is not walking distance or proof of impact.
 
-Use `ST_DWithin` on geography values in meters for a configurable candidate radius, initially 300 m. This is proximity, not a walking distance or proof of impact. Check sensitivity at 150/300/500 m on labelled examples before finalizing the rule.
+Calculate temporal overlap in SQL from documented intervals. Administrative report closure does not establish physical resolution; nearby records do not establish causation. Preserve separate IDs and uncertainty.
 
-Calculate time overlap in SQL from documented source intervals. Treat open-ended administrative reports as open-ended **reports**, with age visible. Do not merge two records into one incident just because their locations and times overlap. Label the output “co-occurring reports/alerts”; retain separate IDs and uncertainty.
+Normalize timestamps to UTC and display `America/Chicago`. Preserve source strings and documented timezones; quarantine ambiguous daylight-saving timestamps rather than choosing an offset.
 
-Normalize timestamps to UTC while displaying `America/Chicago`. Preserve original source strings; resolve naive timestamps using the documented source timezone. Quarantine ambiguous daylight-saving times rather than silently selecting an offset.
+## 5. AIOps and AI-assisted configuration
 
-## 5. AI that earns its place
+### Diagnostic evidence and monitoring
 
-AI has two bounded jobs:
+Instrument the chosen Spark runtime through its supported metrics endpoints or a configured exporter, then verify actual Prometheus scrapes on D65. Capture job/stage duration, executor/worker health, failed tasks, memory/GC pressure where exposed, container resource use, Airflow outcomes, input freshness, quarantine counts, and publication/checkpoint status. Unsupported metrics remain explicit gaps, not invented values.
 
-- **Extract:** convert alert prose into typed fields such as place mentions, affected service, effective dates, and stated change reason. Require supporting text spans; prefer authoritative structured fields over generated replacements. Unknown fields remain null.
-- **Explain:** narrate the SQL-selected overlap/change evidence. Require citations to the provided evidence IDs, and separate reported facts, inferences, and missing evidence.
+Build Grafana dashboards for platform health, Spark execution, and data health. Each actionable alert needs a threshold tied to cadence/resource limits, a duration, an affected service/job, and a runbook link. Correlate runs through logged IDs and stored manifests; avoid record IDs or unbounded run IDs as Prometheus label values.
 
-The model does not calculate spatial distances, decide chronology, infer physical resolution from 311 closure, issue safety guarantees, or invent a causal account of a delay. Treat source text as untrusted data; it cannot authorize tool calls. Model failure should return a labelled unavailable explanation alongside the working evidence timeline.
+The assistant receives a sanitized evidence bundle: alert, bounded log excerpts, relevant metric window, DAG/Spark run state, input coverage, current configuration, and recent approved changes. It returns likely cause, cited evidence, uncertainty, missing checks, and a proposed action. Keep observations separate from hypotheses; compare timestamps instead of assuming the newest change caused the failure.
 
-### Prove added value
+### Configuration assistance and action boundaries
 
-Create 40 hand-labelled examples from your collected source material: 20 development and 20 held-out. Split by source event/record, not random versions of the same event, to avoid near-duplicate leakage. Include ambiguous geography, missing dates, unrelated nearby reports, corrections, and unsupported questions when the source collection provides them. Keep any artificial edge fixtures in a separate test set.
+- **Spark:** propose memory/partition settings or skew mitigation with an explicit hypothesis. Benchmark unchanged inputs against the baseline; retain unsuccessful proposals.
+- **Docker:** propose image, resource, or network changes as patches. Validate Compose configuration, inspect the diff, and apply only after approval.
+- **Terraform:** generate a patch and run validation/plan under controlled tooling. A plan is not authorization to apply; review replacements, state effects, and persistent-data risk.
+- **Recovery:** propose retry, bounded backfill, or a known configuration rollback with exact run/input scope. Verify idempotency and downstream publication before calling the incident resolved.
 
-Compare rules/structured-fields-only extraction with rules + the local model. Measure field correctness, unsupported extraction rate, unresolved/abstain rate, citation support, latency, and inference resource use. Count correct abstentions rather than rewarding confident guesses. If the model adds no benefit on your sample, report that result and keep it out of authoritative matching.
+Start read-only. The model must not receive a Docker socket, infrastructure credentials, unrestricted shell, or direct permission to apply/destroy infrastructure. Source text and logs are untrusted data, not tool instructions. Redact credentials and unnecessary addresses before model access.
 
-For explanations, compare a deterministic evidence summary with the AI version using the same facts. Review whether AI improves comprehensibility without introducing unsupported claims. Freeze held-out cases before prompt tuning; report sample size and limitations without forcing a winner.
+Use deterministic wrappers for approved actions: typed arguments, allowed command/action IDs, resource/run allowlists, timeouts, and audit records. Human approval names the exact target and change immediately before execution. Only a separately preauthorized, idempotent retry within fixed limits may run without a new approval; uncertain or destructive changes stop for review. An assistant failure leaves dashboards, runbooks, and manual operations usable.
+
+### Prove operational value
+
+Run four controlled incident classes in an isolated namespace: Spark executor memory pressure, partition skew, an upstream-schema change in a captured-input copy, and interrupted collection/publication. Do not modify public sources, corrupt the live raw archive, fill the host disk, or interrupt unrelated services. Use recorded city data for the workload; mark all injected faults and load replay as experiments.
+
+Create development scenarios and freeze a different variant of each class for held-out evaluation before prompt tuning. Record the intended fault separately from the assistant's input. Capture the actual failure, symptoms, injected/configuration version, diagnosis, approved action, and outcome. If the runtime behaves differently from the intended fault, report what happened rather than assigning the expected diagnosis.
+
+Compare a deterministic alert/runbook baseline with the AI assistant using the same evidence. Measure supported diagnosis, unsupported claims, abstention, unsafe-action proposals, time to diagnosis, time to verified recovery, duplicate/missing business versions, and resource overhead. Repeat comparable runs where practical and record sample size, timing boundaries, machine limits, and failures; do not infer production reliability from a few local experiments.
+
+Recovery requires a healthy rerun, cleared/recovered telemetry under the alert policy, fresh expected inputs, correct output versions, and a valid checkpoint. A quieter dashboard alone does not prove recovery.
+
+### Secondary city-data AI
+
+Alert-prose extraction and cited city explanations are optional after the operational gates pass. Prefer structured provider fields, require evidence spans/citations, preserve extraction availability time, and leave uncertain fields null. Do not spend the infrastructure/AIOps allocation on a 40-case extraction study or a generic chatbot. The operational evaluation above is the required AI evaluation.
 
 ## 6. Three-week build schedule
 
 Each row uses **1.5 h learn/design + 3 h build + 1 h prove + 0.5 h wrap = 6 h**. Friday includes repair, not additional scope.
 
-### Week 13: Acquire evidence and construct history
+### Week 13: Live collection and the instrumented platform
 
 | Day | Learn/design — 1.5 h | Build — 3 h | Prove — 1 h |
 |---|---|---|---|
-| [ ] D61 Mon | Review source terms, schemas, and existing transit projects; define the user question | Choose corridor/stops/categories; create source contracts, code license, and a tiny real-source acquisition spike | Confirm usable 311, alerts, and GTFS inputs under their terms. Record missing fields, source restrictions, and source-to-product mapping. |
-| [ ] D62 Tue | Study checkpoints, retries, and immutable landing | Build scoped collectors and raw snapshot/run manifests; start scheduled collection immediately | Interrupt and rerun ingestion; verify checkpoint safety, hash integrity, and no secret-bearing query logs. |
-| [ ] D63 Wed | Study PostGIS and versioned GTFS joins | Load GTFS stop/route membership and selected 311 categories; quarantine missing/invalid locations | Inspect 10 locations; reject 311 information-only calls; confirm distance units and preserve geography hash. |
-| [ ] D64 Thu | Study observation time versus effective time | Implement source-version history, unchanged-payload deduplication, and coverage gaps | Replay duplicate, changed, late, and absent records using separate test fixtures; compare resulting state to expected history. |
-| [ ] D65 Fri | Review source cadence and collection health | Finish incremental Airflow runs and raw replay; repair acquisition/history blockers | Rebuild normalized source history from stored evidence. Friday gate: each fact traces to a captured source and failures remain visible. |
+| [ ] D61 Mon | Review source terms, local hardware, Spark topology, and Terraform ownership | Select corridor/categories; acquire tiny real-source samples; pin stack/resource budgets and define network/volume ownership | Confirm source usability, licenses, available resources, and explicit local-only/cloud boundaries. |
+| [ ] D62 Tue | Study durable landing, checkpoints, and Compose services | Start scoped collectors and scheduled capture; create immutable manifests and Compose startup for reused services | Interrupt and rerun collection; confirm durable raw evidence, safe checkpoints, and secret-free logs. |
+| [ ] D63 Wed | Study Terraform Docker resources, state, drift, and plan review | Provision reviewed local network/volumes; connect Compose external resources; start Spark master and two workers | Validate/plan before approved apply; submit a job to the workers; demonstrate persistent state and no overlapping ownership. |
+| [ ] D64 Thu | Study Spark partitioning, deduplication, and atomic publication | Normalize captured records to Parquet; load versioned GTFS/source history through idempotent staging; retain PostGIS matching | Run real inputs and duplicate/changed-record fixtures; verify quarantine, unchanged-version deduplication, and input-to-output lineage. |
+| [ ] D65 Fri | Study Spark/container metrics, freshness, and alert thresholds | Connect Prometheus scrapes/exporters; build Grafana platform/Spark/data-health dashboards; repair platform blockers | Observe actual metrics and a controlled alert. Friday gate: live collection, a distributed Spark run, IaC-owned resources, and working telemetry. |
 
-### Week 14: Compute overlaps and constrain AI
-
-| Day | Learn/design — 1.5 h | Build — 3 h | Prove — 1 h |
-|---|---|---|---|
-| [ ] D66 Mon | Study temporal intervals and spatial candidate rules | Build dbt models for stop/corridor report-alert candidates; retain route-wide and unresolved matches separately | Verify distance/interval boundaries and demonstrate nearby-but-unrelated evidence. No inferred causal incident merge. |
-| [ ] D67 Tue | Review structured output, spans, and source precedence | Add local-model extraction of alert prose with schema validation and ambiguous-location review | Label development examples from actual collection; reject unsupported dates/locations and handle model outage without losing data. |
-| [ ] D68 Wed | Study historical cutoffs and derived-fact availability | Implement historical evidence queries and change summaries with pinned geography/extraction versions | Prove later corrections/extractions cannot leak into an earlier cutoff. Label retrospective reanalysis as distinct. |
-| [ ] D69 Thu | Review evidence-grounded explanation patterns | Build FastAPI evidence/change endpoints and an explanation action over selected facts | Ask supported, ambiguous, and unsupported questions. Check each generated factual claim against its cited source. |
-| [ ] D70 Fri | Review quality fixtures and comparison design | Freeze held-out examples; finish extraction baseline and evidence-summary comparison; repair blockers | Run evaluation and save honest scores. Friday gate: reproducible matching plus an AI baseline comparison, not just a successful chat. |
-
-### Week 15: Product, reliability, and open-source release package
+### Week 14: Configuration experiments and evidence-backed diagnosis
 
 | Day | Learn/design — 1.5 h | Build — 3 h | Prove — 1 h |
 |---|---|---|---|
-| [ ] D71 Mon | Review map/timeline interaction and uncertainty labels | Build Streamlit area/stop filters, dual-time timeline, change diff, evidence drawer, and freshness display | Walk through current versus historical views. Ensure old/missing source evidence never appears as a current all-clear. |
-| [ ] D72 Tue | Review backfill, deletion reconciliation, and schema drift | Add bounded reconciliation, quarantine handling, and collector recovery; keep AI tools read-only | Exercise partial feed, HTTP error, schema change, lost coordinates, DST ambiguity, and model failure with isolated test fixtures. |
-| [ ] D73 Wed | Review held-out evaluation and report limits | Run frozen real-source extraction/explanation evaluation; finalize the derived dataset/data dictionary and provenance | Inspect held-out errors, source gaps, match-radius sensitivity, runtime, and model resource usage. Distinguish test fixtures from collected evidence. |
-| [ ] D74 Thu | Review source/code licensing and clean deployment | Finish Compose startup, acquisition/replay instructions, dependency pinning, attribution, runbook, and case study | Follow the README from a clean database and replay permitted evidence. Check that acquisition, rebuild, and review steps actually work. |
-| [ ] D75 Fri | Review the contribution against comparable projects | Repair final blockers; finish demo recording, architecture diagram, source-contract index, and release-ready repository | Demo actual source evidence, historical cutoff, ambiguity, and failure recovery. Show empty findings when appropriate; do not manufacture a city incident. |
+| [ ] D66 Mon | Study intervals, versioned geography, and replay namespaces | Build minimal dbt/PostGIS overlap/history queries; add pipeline-run/configuration manifests and incident records | Confirm historical cutoff and distance boundaries; replay without duplicated business versions or synthetic city findings. |
+| [ ] D67 Tue | Study executor memory, partition sizing, skew, and benchmark controls | Establish baseline runs; use AI to propose one Spark configuration patch; benchmark identical captured inputs | Record before/after duration, task/resource evidence, correctness, and rejected proposals. Label amplified replay as load testing. |
+| [ ] D68 Wed | Study evidence bundles and diagnostic uncertainty | Build read-only AI diagnosis over sanitized metrics, logs, run state, and configuration diffs; add runbook baseline | Trigger isolated memory-pressure and skew scenarios; verify cited observations, uncertainty, and no direct shell/socket access. |
+| [ ] D69 Thu | Study Compose/Terraform validation and approval boundaries | Add AI patch proposals, saved plan/diff review, and typed wrappers for approved bounded recovery | Reject an unapproved change and an out-of-scope target; validate an approved proposal before execution and retain its audit trail. |
+| [ ] D70 Fri | Study data failures and held-out incident design | Add schema-change and interrupted-publication scenarios; freeze different held-out variants; repair diagnostic blockers | Compare baseline versus AI on development incidents. Friday gate: four observed incident classes and a usable read-only assistant with approval gates. |
+
+### Week 15: Recovery proof and the operating case study
+
+| Day | Learn/design — 1.5 h | Build — 3 h | Prove — 1 h |
+|---|---|---|---|
+| [ ] D71 Mon | Study idempotent retries, bounded backfills, and rollback | Execute an approved retry/backfill or known rollback through controlled wrappers; build the small incident/evidence page | Verify output versions, checkpoint, freshness, and alert recovery. Prove a failed action does not produce a false resolved state. |
+| [ ] D72 Tue | Review historical knowledge, log hygiene, and operating failure modes | Connect source/run/config/action provenance; exercise interrupted collection, partial feeds, and model outage | Confirm current evidence is distinct from historical knowledge; dashboards/runbooks remain usable without AI and no secret enters model inputs. |
+| [ ] D73 Wed | Review frozen operational evaluation and timing boundaries | Run held-out incident variants and the runbook baseline; save diagnoses, proposed actions, approved outcomes, and measurements | Report supported diagnosis, abstention, unsafe proposals, recovery time, missing/duplicate versions, and resource overhead without tuning on held-out cases. |
+| [ ] D74 Thu | Study clean startup, state handling, licensing, and teardown risk | Finish Terraform/Compose instructions, Grafana provisioning, runbooks, attribution, dependency pins, and rollback procedures | Start from an isolated clean environment after approval; replay permitted evidence and verify IaC state/resource ownership without deleting live volumes. |
+| [ ] D75 Fri | Review the contribution and operational evidence | Repair remaining gates; finish demo, architecture/configuration decisions, incident report, and release package | Demonstrate live data, Spark execution, Grafana alert, cited AI diagnosis, approved recovery, and data correctness. Report unresolved failures and honest empty city findings. |
 
 “Release-ready” means the repository is prepared for publication; creating a public repository or publishing source snapshots requires your explicit approval and license review. No external publishing is authorized by this plan.
 
 ## 7. Completion criteria
 
-- [ ] A bounded Chicago corridor/stop set and documented analytical question, not an unscoped city dashboard.
-- [ ] Working collectors for permitted 311, CTA alerts, and GTFS sources, with at least seven days of actual observations and visible collection gaps.
-- [ ] Immutable evidence manifests, versioned source records/geography, and safe incremental checkpoints.
-- [ ] Deterministic spatial/time matching that distinguishes route-wide alerts, proximity, administrative status, and uncertainty.
-- [ ] Historical queries exclude later raw versions, geometry changes, extracted facts, and human reviews.
-- [ ] Real-source 40-case evaluation, rules-only comparison, held-out results, and an error analysis. Extend collection if real material is insufficient.
-- [ ] A working local open-weight model path, with schema/span validation, source-backed explanations, and a usable deterministic fallback when AI is unavailable.
-- [ ] Replay/idempotency, partial-feed, outage, schema-change, missing-location, DST, and time-cutoff scenarios have observed results.
-- [ ] A clean-start demo with map/timeline, changes, evidence, uncertainty, and freshness; no unsupported causal/safety statements.
-- [ ] An open-source code release package with dependencies, model license, data attribution, source-specific redistribution rules, runbook, case study, and measured results.
+- [ ] A bounded city question and permitted 311/CTA/GTFS collectors with seven calendar days of real observations and visible gaps.
+- [ ] A Docker-managed Spark master and two workers run actual normalization/replay jobs; deployment and resource limitations are documented.
+- [ ] Terraform provisions local network/volumes with reviewed plan/state handling and explicit non-overlapping Compose ownership.
+- [ ] Immutable inputs, atomic/idempotent publication, safe checkpoints, source/configuration/run provenance, and versioned geography.
+- [ ] Deterministic overlaps and historical views preserve source uncertainty and exclude later evidence; administrative closure is not physical resolution.
+- [ ] Prometheus scrapes actual metrics; provisioned Grafana dashboards and at least one observed alert show infrastructure, Spark, and data health.
+- [ ] A read-only AI diagnosis path cites bounded operational evidence and offers uncertainty, safe proposals, and a deterministic runbook alternative.
+- [ ] Configuration/recovery proposals pass validation and exact-scope approval; rejected unsafe/unapproved actions and an audit trail have observed results.
+- [ ] Four controlled incident classes plus frozen held-out variants have saved baseline/AI results, failure evidence, and measured recovery checks.
+- [ ] Recovery verifies output correctness, no missing/duplicate business versions, checkpoint state, source freshness, and the alert recovery policy.
+- [ ] Clean-start/replay instructions, Terraform state precautions, model/code licenses, source attribution, runbooks, measured case study, and release package.
 
-A natural correction or overlap may not occur during a short collection window. The completion gate requires functioning history/matching and honest live evidence; a claim that you found a real correction/overlap requires an observed case. Continue collecting rather than fake the finding.
+A natural city correction/overlap is not guaranteed. Controlled operational failures establish the AIOps experiments, not real city incidents. The completion claim requires observed platform behavior; configuration files and screenshots alone are insufficient. This specification does not implement or deploy the platform.
 
 ## 8. Reuse from the core course
 
 | Existing work | Reuse here |
 |---|---|
-| R-P5 document processing | Structured extraction, validators, Airflow recovery, review workflow |
-| R-P7 evaluation harness | Versioned cases, baseline comparisons, case-level reports |
-| R-P8 prompt versioning | Record the exact extraction/explanation prompt used |
-| R-P9 gateway | Local model access, request limits, usage/runtime accounting |
-| R-P10 guardrails | Strip unnecessary sensitive/address data from model inputs and logs |
-| R-P12 case study | Architecture decisions, measured outcomes, failed approaches, operating notes |
+| R-P5 document processing | Airflow tasks, structured contracts, quarantine, recovery, and review |
+| R-P7 evaluation harness | Frozen incident variants, deterministic baseline, case-level results |
+| R-P8 prompt versioning | Exact diagnosis/proposal prompts and evidence-bundle versions |
+| R-P9 gateway | Local model access, request limits, runtime/resource accounting |
+| R-P10 guardrails | Sanitized operational evidence, secret redaction, typed action boundaries |
+| R-P12 case study | Spark/configuration benchmarks, incident timelines, operating decisions and limits |
 
-Your new learning is **live-source acquisition, incremental/replay-safe DE, PostGIS, temporal knowledge modelling, and constructing an original derived data product**. Retrieval by SQL and provenance replaces a generic vector-search chatbot.
+Your new learning is **Spark operation and tuning, Docker deployment, Terraform state/plan ownership, Prometheus/Grafana instrumentation, AI-assisted incident diagnosis, and approval-gated recovery**, exercised against live-source, replay-safe DE. City-data provenance gives operational claims an inspectable workload rather than a generic chatbot demo.
 
 ### First action when you start
 
-On D61, verify terms and acquire tiny real samples from all three sources. Inspect category/coordinate/alert coverage before choosing the corridor. Start your collector on D62; the dataset becomes yours through the collection history and derived modelling, not through downloading someone else's completed analysis.
+On D61, verify source terms and tiny samples, inspect available hardware, and define the local stack/resource budget and Terraform/Compose ownership. Start collection on D62. Keep the real city evidence separate from labelled fault/load experiments; both the data product and the operating claims must trace to saved runs.
