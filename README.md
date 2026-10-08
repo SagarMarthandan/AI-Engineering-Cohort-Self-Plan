@@ -13,7 +13,7 @@ Use [60-Day_AI_Engineering_Plan.md](60-Day_AI_Engineering_Plan.md) for the curre
 
 Printable version: [60-Day_AI_Engineering_Plan.pdf](60-Day_AI_Engineering_Plan.pdf), with one page per study week plus source links and completion checklists.
 
-The plan combines Ed Donner's LLM Engineering course, selected AI Engineering from Scratch lessons, and all 12 self-track project topics. It includes daily build/proof tasks, Friday checkpoints, direct lesson links, and progress tracking. Reuse components across learning builds; the original implementation plans below retain their larger scope and timelines.
+The plan combines Ed Donner's LLM Engineering course, selected AI Engineering from Scratch lessons, and all 12 self-track project topics. Every daily row has separate **Ed Donner**, **Self track**, and **AI Engineering from Scratch** source columns, with course week/topic, linked project specifications or self-lab instructions, and direct lesson links. The three sources share the 1.5-hour learning block; “no new lesson” is explicit. Daily build/proof tasks, Friday checkpoints, and progress tracking remain intact. Reuse components across learning builds; the original implementation plans below retain their larger scope and timelines.
 
 The 45-day plans and previous curriculum documents remain unchanged as references.
 
