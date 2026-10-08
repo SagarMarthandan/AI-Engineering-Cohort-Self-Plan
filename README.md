@@ -1,12 +1,32 @@
 # AI Engineering Cohort — Self-Plan
 
-A self-directed, project-based curriculum for transitioning from data engineering / analytics engineering into AI engineering. 12 sequenced projects across 5 tiers, ~9.5 months part-time.
+A self-directed, project-based curriculum for transitioning from data engineering / analytics engineering into AI engineering. The current schedule covers 60 study days across 12 weeks, with an optional 15-day City Disruption Memory capstone. The original 12 project specifications across five tiers remain longer-term references.
 
 > **Who this is for:** A data engineer / data analyst / analytics engineer who knows Python, SQL, dbt, Airflow, Docker, and data quality tooling — and wants to bridge the gap into LLM orchestration, retrieval engineering, AI evaluation, and production AI infrastructure.
 >
 > **Core thesis:** You already have 70% of the skills. The 30% gap is LLM orchestration, retrieval engineering, AI evaluation, and production AI infrastructure. This roadmap bridges that gap.
 
 ---
+## Current study schedule
+
+Use [60-Day_AI_Engineering_Plan.md](60-Day_AI_Engineering_Plan.md) for the current integrated schedule: **60 study days, 12 weeks, Monday–Friday, six hours per day, 360 hours total**.
+
+Printable version: [60-Day_AI_Engineering_Plan.pdf](60-Day_AI_Engineering_Plan.pdf), with one page per study week plus source links and completion checklists.
+
+The plan combines Ed Donner's LLM Engineering course, selected AI Engineering from Scratch lessons, and all 12 self-track project topics. It includes daily build/proof tasks, Friday checkpoints, direct lesson links, and progress tracking. Reuse components across learning builds; the original implementation plans below retain their larger scope and timelines.
+
+The 45-day plans and previous curriculum documents remain unchanged as references.
+
+### Extra AI + data engineering capstone
+
+The selected additional project is [City Disruption Memory](City_Disruption_Memory_Capstone.md): a live Chicago city-data pipeline combining transit alerts, infrastructure reports, and versioned geography with evidence-backed AI extraction and explanations. Build your own collection history and derived overlap dataset rather than clone an existing transit dashboard.
+
+The proposed extension is **D61–D75: three additional weeks, five days/week, six hours/day, 90 hours**. The core 60-day course and its existing capstone remain intact. Taking both means 75 study days and 450 hours. The specification includes daily tasks, official sources, historical-cutoff rules, evaluation, licensing boundaries, and completion gates; no application or public release has been created yet.
+
+Printable build specification: [City_Disruption_Memory_Capstone.pdf](City_Disruption_Memory_Capstone.pdf).
+
+---
+
 
 ## Roadmap Structure
 
@@ -14,6 +34,10 @@ A self-directed, project-based curriculum for transitioning from data engineerin
 AI-Engineering Roadmap/
 │
 ├── ROADMAP.md                              ← full curriculum + timeline
+├── 60-Day_AI_Engineering_Plan.md            ← current daily schedule
+├── 60-Day_AI_Engineering_Plan.pdf           ← printable schedule + extension overview
+├── City_Disruption_Memory_Capstone.md       ← extra AI + data engineering build spec
+├── City_Disruption_Memory_Capstone.pdf      ← printable extra capstone
 │
 ├── Tier 1 - RAG & Retrieval/               ← Months 1-3
 │   ├── Project 1 - Advanced RAG/           ← Hybrid search, re-ranking, query transformation
@@ -61,7 +85,9 @@ Each project folder contains an `IMPLEMENTATION_PLAN.md` — a self-contained sp
 
 ---
 
-## Timeline
+## Full-Spec Reference Timeline
+
+The timeline below belongs to the original project specifications, not the current 60-day learning-build schedule. Use the current study schedule above for daily work.
 
 ```
 Month 1-3:    Tier 1 — RAG & Retrieval              (P1, P2, P3)
@@ -98,11 +124,23 @@ Month 8-9.5:  Tier 5 — Capstone                      (P11, P12)
 
 ## How to Use
 
-1. Read `ROADMAP.md` for the full curriculum, skill mapping, and timeline
-2. Start with **Tier 1, Project 1** — read its `IMPLEMENTATION_PLAN.md`
-3. Follow the phases in order; run the verification step at each phase boundary
-4. Build each project as a portfolio piece: README, architecture diagrams, metrics, Docker deployment
-5. Mark projects complete in the progress table in `ROADMAP.md`
+1. Start with `60-Day_AI_Engineering_Plan.md` and follow D01–D60, including each day's proof and Friday checkpoint
+2. Read the linked `IMPLEMENTATION_PLAN.md` files for design detail; the learning-build scope is defined in the current schedule
+3. Save runnable examples, measured results, and project run instructions as you progress
+4. After the core course, follow `City_Disruption_Memory_Capstone.md` for the optional D61–D75 extension
+5. Mark an original project complete in `ROADMAP.md` only after meeting its original full-spec requirements
+
+### Historical reference documents
+
+These documents retain their earlier schedules and mappings; they do not override the current plan.
+
+| Document | Reference purpose |
+|---|---|
+| [45-day overview](45-Day_AI_Engineering_Study_Plan.pdf) | Earlier 8.5-hour/day schedule |
+| [Detailed 45-day plan](45-Day_AI_Engineering_Study_Plan_Detailed.pdf) | Earlier daily activities and resource allocations |
+| [Ed Donner / From-Scratch mapping](Ed_Donners_vs_AI_Engineering_from_Scratch_Mapping.pdf) | Earlier topic-by-topic source comparison |
+| [Eight-week study plan](ai_engineering_study_plan.md) | Earlier theory, exercises, and reading list |
+| [Extensive interleaved plan](EXTENSIVE_PLAN.md) | Earlier course-to-project mapping |
 
 ---
 
